@@ -1,5 +1,5 @@
 {% extends 'homebase.html' %}
-{% load i18n %}
+
 {% block title %} Contact Us-{{ setting.title }} {% endblock %}
 {% block description %} {{ setting.description }} {% endblock %}
 {% block keywords %} {{ setting.keywords }} {% endblock %}
@@ -31,7 +31,7 @@
                     <div class="billing-details">
 
                         <div class="section-title">
-                            <h3 class="title">Contact Form"%}</h3>
+                            <h3 class="title">Contact Form</h3>
 
                             {% if messages %}
                                 {% for message in messages %}

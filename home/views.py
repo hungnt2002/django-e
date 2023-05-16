@@ -40,26 +40,12 @@ def index(request):
              }
     return render(request,'index.html',context)
 
-
-
-
-def selectlanguage(request):
-    if request.method == 'POST':  # check post
-        lang = request.POST['language']
-        translation.activate(lang)
-        request.session[translation.LANGUAGE_SESSION_KEY]=lang
-        #return HttpResponse(lang)
-        return HttpResponseRedirect("/"+lang)
-
 def aboutus(request):
-    #category = categoryTree(0,'',currentlang)
     setting = Setting.objects.get(pk=1)
     context={'setting':setting}
     return render(request, 'about.html', context)
 
 def contactus(request):
-    currentlang = request.LANGUAGE_CODE[0:2]
-    #category = categoryTree(0,'',currentlang)
     if request.method == 'POST': # check post
         form = ContactForm(request.POST)
         if form.is_valid():
@@ -148,27 +134,9 @@ def product_detail(request,id,slug):
 
 
 def faq(request):
-    defaultlang = settings.LANGUAGE_CODE[0:2]
-    currentlang = request.LANGUAGE_CODE[0:2]
-
-    if defaultlang==currentlang:
-        faq = FAQ.objects.filter(status="True",lang=defaultlang).order_by("ordernumber")
-    else:
-        faq = FAQ.objects.filter(status="True",lang=currentlang).order_by("ordernumber")
+    faq = FAQ.objects.filter(status="True").order_by("ordernumber")
 
     context = {
         'faq': faq,
     }
     return render(request, 'faq.html', context)
-
-@login_required(login_url='/login') # Check login
-def savelangcur(request):
-    lasturl = request.META.get('HTTP_REFERER')
-    curren_user = request.user
-    language=Language.objects.get(code=request.LANGUAGE_CODE[0:2])
-    #Save to User profile database
-    data = UserProfile.objects.get(user_id=curren_user.id )
-    data.language_id = language.id
-    data.currency_id = request.session['currency']
-    data.save()  # save data
-    return HttpResponseRedirect(lasturl)

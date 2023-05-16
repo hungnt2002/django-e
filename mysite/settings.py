@@ -42,9 +42,7 @@ INSTALLED_APPS = [
     'product',
     'home',
     'ckeditor',
-    'mptt',
     'currencies',
-
 ]
 
 MIDDLEWARE = [

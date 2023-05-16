@@ -1,5 +1,5 @@
 {% load static %}
-{% load i18n %}
+
 {% load currency %}
 <header>
     <!-- top Header -->
@@ -24,34 +24,6 @@
                     <li><a href="#">Store</a></li>
                     <li><a href="#">Newsletter</a></li>
                     <li><a href="{% url 'faq' %}">FAQ</a></li>
-                    <li class="dropdown default-dropdown">
-                        <form action="{% url 'selectlanguage' %}" method="post">{% csrf_token %}
-                            <input name="next" type="hidden" value="{{ redirect_to }}">
-                            <select name="language" onchange="submit()" >
-
-                                {% get_current_language as LANGUAGE_CODE %}
-                                {% get_available_languages as LANGUAGES %}
-                                {% get_language_info_list for LANGUAGES as languages %}
-                                {% for language in languages %}
-                                    <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
-                                        {{ language.name_local }} ({{ language.code }})
-                                    </option>
-                                {% endfor %}
-
-                            </select>
-                            <noscript>
-                                <input type="submit" value="Set" />
-                            </noscript>
-                        </form>
-                    </li>
-
-                    <li class="dropdown default-dropdown">
-                        <form id="currency_switcher" method="POST" action="{% url 'savelangcur' %}">
-                            {% csrf_token %}
-                            <input type="submit" value="Save" />
-                        </form>
-                    </li>
-
                 </ul>
             </div>
         </div>
