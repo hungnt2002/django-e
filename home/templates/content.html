@@ -1,4 +1,4 @@
-{% load currency %}
+
 {% load static %}
 
 <!-- section -->
@@ -23,7 +23,7 @@
                             <img src="{{ rs.image.url }}" alt="" style="height: 200px">
                         </div>
                         <div class="product-body">
-                            <h3 class="product-price">{{ rs.price|currency:request.session.currency }} {{ request.session.currency }}</h3>
+                            <h3 class="product-price">{{ rs.price }} USD</h3>
                             <div class="product-rating">
                                 <i class="fa fa-star{% if rs.avaregereview < 1%}-o empty{% endif%}"></i>
                                 <i class="fa fa-star{% if rs.avaregereview < 2%}-o empty{% endif%}"></i>
@@ -73,7 +73,7 @@
                             <img src="{{ rs.image.url }}" alt="" style="height: 200px">
                         </div>
                         <div class="product-body">
-                            <h3 class="product-price">{{ rs.price|currency:request.session.currency }} {{ request.session.currency }} </h3>
+                            <h3 class="product-price">{{ rs.price }} USD </h3>
                             <div class="product-rating">
                                 <i class="fa fa-star{% if rs.avaregereview < 1%}-o empty{% endif%}"></i>
                                 <i class="fa fa-star{% if rs.avaregereview < 2%}-o empty{% endif%}"></i>

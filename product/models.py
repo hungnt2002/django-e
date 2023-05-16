@@ -7,18 +7,13 @@ from django.db.models import Avg, Count
 from django.forms import ModelForm
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from mptt.fields import TreeForeignKey
-from mptt.models import MPTTModel
-
-from home.models import Language
 
 
-class Category(MPTTModel):
+class Category(models.Model):
     STATUS = (
         ('True', 'True'),
         ('False', 'False'),
     )
-    parent = TreeForeignKey('self',blank=True, null=True ,related_name='children', on_delete=models.CASCADE)
     title = models.CharField(max_length=50)
     keywords = models.CharField(max_length=255)
     description = models.TextField(max_length=255)
@@ -39,10 +34,6 @@ class Category(MPTTModel):
 
     def __str__(self):                           # __str__ method elaborated later in
         full_path = [self.title]                  # post.  use __unicode__ in place of
-        k = self.parent
-        while k is not None:
-            full_path.append(k.title)
-            k = k.parent
         return ' / '.join(full_path[::-1])
 
 
@@ -179,32 +170,3 @@ class Variants(models.Model):
              return mark_safe('<img src="{}" height="50"/>'.format(img.image.url))
         else:
             return ""
-
-llist= Language.objects.all()
-list1=[]
-for rs in llist:
-    list1.append((rs.code,rs.name))
-langlist= (list1)
-
-class ProductLang(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE) #many to one relation with Category
-    lang =  models.CharField(max_length=6, choices=langlist)
-    title = models.CharField(max_length=150)
-    keywords = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
-    slug = models.SlugField(null=False, unique=True)
-    detail=RichTextUploadingField()
-
-    def get_absolute_url(self):
-        return reverse('product_detail', kwargs={'slug': self.slug})
-
-class CategoryLang(models.Model):
-    category = models.ForeignKey(Category, related_name='categorylangs', on_delete=models.CASCADE) #many to one relation with Category
-    lang =  models.CharField(max_length=6, choices=langlist)
-    title = models.CharField(max_length=150)
-    keywords = models.CharField(max_length=255)
-    slug = models.SlugField(null=False, unique=True)
-    description = models.CharField(max_length=255)
-
-    def get_absolute_url(self):
-        return reverse('category_detail', kwargs={'slug': self.slug})

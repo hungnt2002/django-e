@@ -15,9 +15,9 @@ from django.urls import reverse
 from django.utils import translation
 
 from home.forms import SearchForm
-from home.models import Setting, ContactForm, ContactMessage, FAQ, SettingLang, Language
+from home.models import Setting, ContactForm, ContactMessage, FAQ
 from mysite import settings
-from product.models import Category, Product, Images, Comment, Variants, ProductLang, CategoryLang
+from product.models import Category, Product, Images, Comment, Variants
 from user.models import UserProfile
 
 
@@ -66,7 +66,7 @@ def contactus(request):
 
 def category_products(request,id,slug):
     catdata = Category.objects.get(pk=id)
-    products = Product.objects.filter(category_id=id) #default language
+    products = Product.objects.filter(category_id=id)
 
     context={'products': products,
              'catdata':catdata }

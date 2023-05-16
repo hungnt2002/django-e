@@ -1,4 +1,21 @@
-Django==3.0.7
-django-ckeditor==5.9.0
-django-currencies==0.10.1
-Pillow
+# Django
+# django-admin-thumbnails
+# django-ckeditor
+# django-currencies
+# Pillow
+
+# asgiref
+# beautifulsoup4
+# bs4
+# certifi
+# chardet
+# Django
+# django-admin-thumbnails
+# django-ckeditor
+# django-currencies
+# django-js-asset
+idna
+jsonfield
+python-gettext
+urllib3
+sqlparse

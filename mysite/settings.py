@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'product',
     'home',
     'ckeditor',
-    'currencies',
 ]
 
 MIDDLEWARE = [
@@ -69,7 +68,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'currencies.context_processors.currencies'
             ],
         },
     },

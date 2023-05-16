@@ -49,9 +49,6 @@ def login_form(request):
 
 def logout_func(request):
     logout(request)
-    if translation.LANGUAGE_SESSION_KEY in request.session:
-        del request.session[translation.LANGUAGE_SESSION_KEY]
-        del request.session['currency']
     return HttpResponseRedirect('/')
 
 
