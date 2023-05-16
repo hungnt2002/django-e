@@ -27,22 +27,7 @@ def index(request):
 
     setting = Setting.objects.get(pk=1)
     products_latest = Product.objects.all().order_by('-id')[:4]  # last 4 products
-    # >>>>>>>>>>>>>>>> M U L T I   L A N G U G A E >>>>>> START
-    defaultlang = settings.LANGUAGE_CODE[0:2]
-    currentlang = request.LANGUAGE_CODE[0:2]
-
-    if defaultlang != currentlang:
-        setting = SettingLang.objects.get(lang=currentlang)
-        products_latest = Product.objects.raw(
-            'SELECT p.id,p.price, l.title, l.description,l.slug  '
-            'FROM product_product as p '
-            'LEFT JOIN product_productlang as l '
-            'ON p.id = l.product_id '
-            'WHERE l.lang=%s ORDER BY p.id DESC LIMIT 4', [currentlang])
-
     products_slider = Product.objects.all().order_by('id')[:4]  #first 4 products
-
-
     products_picked = Product.objects.all().order_by('?')[:4]   #Random selected 4 products
     category = Category.objects.all()
     page="home"
@@ -60,8 +45,6 @@ def index(request):
 
 def selectlanguage(request):
     if request.method == 'POST':  # check post
-        cur_language = translation.get_language()
-        lasturl= request.META.get('HTTP_REFERER')
         lang = request.POST['language']
         translation.activate(lang)
         request.session[translation.LANGUAGE_SESSION_KEY]=lang
@@ -90,35 +73,16 @@ def contactus(request):
             messages.success(request,"Your message has ben sent. Thank you for your message.")
             return HttpResponseRedirect('/contact')
 
-    defaultlang = settings.LANGUAGE_CODE[0:2]
-    currentlang = request.LANGUAGE_CODE[0:2]
     setting = Setting.objects.get(pk=1)
-    if defaultlang != currentlang:
-        setting = SettingLang.objects.get(lang=currentlang)
-
     form = ContactForm
     context={'setting':setting,'form':form  }
     return render(request, 'contactus.html', context)
 
 def category_products(request,id,slug):
-    defaultlang = settings.LANGUAGE_CODE[0:2]
-    currentlang = request.LANGUAGE_CODE[0:2]
     catdata = Category.objects.get(pk=id)
     products = Product.objects.filter(category_id=id) #default language
-    if defaultlang != currentlang:
-        try:
-            products = Product.objects.raw(
-                'SELECT p.id,p.price,p.amount,p.image,p.variant,l.title, l.keywords, l.description,l.slug,l.detail '
-                'FROM product_product as p '
-                'LEFT JOIN product_productlang as l '
-                'ON p.id = l.product_id '
-                'WHERE p.category_id=%s and l.lang=%s', [id, currentlang])
-        except:
-            pass
-        catdata = CategoryLang.objects.get(category_id=id, lang=currentlang)
 
     context={'products': products,
-             #'category':category,
              'catdata':catdata }
     return render(request,'category_products.html',context)
 
@@ -158,26 +122,8 @@ def search_auto(request):
 
 def product_detail(request,id,slug):
     query = request.GET.get('q')
-    # >>>>>>>>>>>>>>>> M U L T I   L A N G U G A E >>>>>> START
-    defaultlang = settings.LANGUAGE_CODE[0:2] #en-EN
-    currentlang = request.LANGUAGE_CODE[0:2]
-    #category = categoryTree(0, '', currentlang)
     category = Category.objects.all()
-
     product = Product.objects.get(pk=id)
-
-    if defaultlang != currentlang:
-        try:
-            prolang =  Product.objects.raw('SELECT p.id,p.price,p.amount,p.image,p.variant,l.title, l.keywords, l.description,l.slug,l.detail '
-                                          'FROM product_product as p '
-                                          'INNER JOIN product_productlang as l '
-                                          'ON p.id = l.product_id '
-                                          'WHERE p.id=%s and l.lang=%s',[id,currentlang])
-            product=prolang[0]
-        except:
-            pass
-    # <<<<<<<<<< M U L T I   L A N G U G A E <<<<<<<<<<<<<<< end
-
     images = Images.objects.filter(product_id=id)
     comments = Comment.objects.filter(product_id=id,status='True')
     context = {'product': product,'category': category,
