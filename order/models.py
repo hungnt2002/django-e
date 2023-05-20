@@ -16,10 +16,6 @@ class ShopCart(models.Model):
     def __str__(self):
         return self.product.title
 
-    # @property
-    # def price(self):
-    #     return (self.product.price)
-
     @property
     def amount(self):
         return (self.quantity * self.product.price)

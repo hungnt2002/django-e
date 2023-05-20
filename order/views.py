@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
 # Create your views here.
 from django.utils.crypto import get_random_string
@@ -12,15 +12,27 @@ from user.models import UserProfile
 
 
 def index(request):
-    return HttpResponse ("Order Page")
+    return HttpResponse("Order Page")
 
-@login_required(login_url='/login') # Check login
+# @login_required(login_url='/login') # Check login
 def addtoshopcart(request,id):
     url = request.META.get('HTTP_REFERER')  # get last url
     current_user = request.user  # Access User Session information
     product= Product.objects.get(pk=id)
-    print(product.variant)
 
+    if(not request.user.is_authenticated):
+        cart = request.session.get('cart', {})  # Lấy giỏ hàng từ session
+        if id in cart:
+            cart[id]['quantity'] += 1  # Tăng số lượng nếu sản phẩm đã tồn tại trong giỏ hàng
+        else:
+            cart[id] = {
+                'quantity': 1,
+                'title': product.title,
+                'price': float(product.price)
+            }  # Thêm sản phẩm mới vào giỏ hàng
+        request.session['cart'] = cart  # Lưu giỏ hàng vào session
+        return HttpResponseRedirect(url)
+    
     if product.variant != 'None':
         variantid = request.POST.get('variantid')  # from variant add to cart
         checkinvariant = ShopCart.objects.filter(variant_id=variantid, user_id=current_user.id)  # Check product in shopcart
@@ -30,7 +42,6 @@ def addtoshopcart(request,id):
             control = 0 # The product is not in the cart"""
     else:
         checkinproduct = ShopCart.objects.filter(product_id=id, user_id=current_user.id) # Check product in shopcart
-        print(checkinproduct)
         if checkinproduct:
             control = 1 # The product is in the cart
         else:
@@ -50,7 +61,7 @@ def addtoshopcart(request,id):
                 data = ShopCart()
                 data.user_id = current_user.id
                 data.product_id =id
-                data.variant_id = variantid
+                # data.variant_id = variantid
                 data.quantity = form.cleaned_data['quantity']
                 data.save()
         messages.success(request, "Product added to Shopcart ")
@@ -72,28 +83,47 @@ def addtoshopcart(request,id):
         messages.success(request, "Product added to Shopcart")
         return HttpResponseRedirect(url)
 
-
 def shopcart(request):
+    if not request.user.is_authenticated:
+        cart = request.session.get('cart', {})  # Lấy giỏ hàng từ session
+        total = 0
+
+        # Tính tổng giá tiền của giỏ hàng
+        for id, item in cart.items():
+            total += item['price'] * item['quantity']
+        shopcart = cart.items()
+    else:
+        current_user = request.user  # Access User Session information
+        shopcart = ShopCart.objects.filter(user_id=current_user.id)
+        total=0
+        for rs in shopcart:
+            total += rs.product.price * rs.quantity
+
     category = Category.objects.all()
-    current_user = request.user  # Access User Session information
-    shopcart = ShopCart.objects.filter(user_id=current_user.id)
-    total=0
-    for rs in shopcart:
-        total += rs.product.price * rs.quantity
-    #return HttpResponse(str(total))
+
     context={'shopcart': shopcart,
              'category':category,
              'total': total,
              }
     return render(request,'shopcart_products.html',context)
 
-@login_required(login_url='/login') # Check login
 def deletefromcart(request,id):
-    ShopCart.objects.filter(id=id).delete()
-    messages.success(request, "Your item deleted form Shopcart.")
-    return HttpResponseRedirect("/shopcart")
+    cart = request.session.get('cart', {})  # Lấy giỏ hàng từ session
+
+    if id in cart:
+        del cart[id]  # Xóa sản phẩm khỏi giỏ hàng
+
+    request.session['cart'] = cart  # Lưu giỏ hàng vào session
+
+    if(request.user.is_authenticated):
+        ShopCart.objects.filter(id=id).delete()
+    
+    messages.success(request, "Your item deleted from Shopcart.")
+    return redirect('/shopcart')
 
 
+
+@login_required(login_url='/login') # Check login
 def orderproduct(request):
     category = Category.objects.all()
     current_user = request.user
@@ -109,9 +139,6 @@ def orderproduct(request):
         form = OrderForm(request.POST)
         #return HttpResponse(request.POST.items())
         if form.is_valid():
-            # Send Credit card to bank,  If the bank responds ok, continue, if not, show the error
-            # ..............
-
             data = Order()
             data.first_name = form.cleaned_data['first_name'] #get product quantity from form
             data.last_name = form.cleaned_data['last_name']
@@ -121,7 +148,7 @@ def orderproduct(request):
             data.user_id = current_user.id
             data.total = total
             data.ip = request.META.get('REMOTE_ADDR')
-            ordercode= get_random_string(5).upper() # random cod
+            ordercode= get_random_string(5).upper()
             data.code =  ordercode
             data.save() #
 

@@ -7,20 +7,18 @@
     <div class="container">
         <div id="responsive-nav">
             <!-- category nav -->
-            {% if page %}
-                <div class="category-nav">
-            {% else %}
-                <div class="category-nav show-on-click">
-            {% endif %}
 
+            <div class="category-nav show-on-click">
             <span class="category-header">Categories <i class="fa fa-list"></i></span>
-            <ul class="category-list">
-                
-                {% for rs in category %}
-                    <li><a href="{% url 'category_products' rs.id rs.slug %}">{{rs.title}}</a></li>
-                {% endfor %}
-            </ul>
-
+            {% if page %}
+                <ul class="category-list open">
+            {% else %}    
+                <ul class="category-list">    
+            {% endif %}
+                    {% for rs in category %}
+                        <li><a href="{% url 'category_products' rs.id rs.slug %}">{{rs.title}}</a></li>
+                    {% endfor %}
+                </ul>
             </div>
             <!-- /category nav -->
 

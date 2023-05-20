@@ -41,21 +41,6 @@
                     </a>
                 </div>
                 <!-- /Logo -->
-                <script>
-                    $(function() {
-                        $("#query").autocomplete({
-                            source: "/search_auto/",
-                            select: function (event, ui) { //item selected
-                                AutoCompleteSelectHandler(event, ui)
-                            },
-                            minLength: 2,
-                        });
-                    });
-                    function AutoCompleteSelectHandler(event, ui)
-                    {
-                        var selectedObj = ui.item;
-                    }
-                </script>
 
                 <!-- Search -->
                 <div class="header-search">
@@ -84,7 +69,7 @@
                                 <div class="header-btns-icon">
                                     <img src="{{ request.session.userimage }}" style="height: 40px; border-radius: 30%">
                                 </div>
-                                <strong class="text-uppercase">{{ user.first_name }} <i class="fa fa-caret-down"></i></strong>
+                                <strong class="text-uppercase">{{ user.first_name }} {{ user.last_name }} <i class="fa fa-caret-down"></i></strong>
                             </div>
                         {% else %}
                             <a href="{% url 'login' %}" class="text-uppercase">Login</a> / <a href="{% url 'signup' %}" class="text-uppercase">Sign Up</a>

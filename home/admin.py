@@ -5,7 +5,7 @@ from home.models import Setting, ContactMessage, FAQ
 
 
 class SettingtAdmin(admin.ModelAdmin):
-    list_display = ['title','company', 'update_at','status']
+    list_display = ['title', 'update_at','status']
 
 class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ['name','subject', 'update_at','status']

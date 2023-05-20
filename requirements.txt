@@ -1,21 +1,4 @@
-# Django
-# django-admin-thumbnails
-# django-ckeditor
-# django-currencies
-# Pillow
-
-# asgiref
-# beautifulsoup4
-# bs4
-# certifi
-# chardet
-# Django
-# django-admin-thumbnails
-# django-ckeditor
-# django-currencies
-# django-js-asset
-idna
-jsonfield
-python-gettext
-urllib3
-sqlparse
+Django
+django-admin-thumbnails
+django-ckeditor
+Pillow

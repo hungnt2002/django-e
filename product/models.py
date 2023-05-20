@@ -17,7 +17,6 @@ class Category(models.Model):
     title = models.CharField(max_length=50)
     keywords = models.CharField(max_length=255)
     description = models.TextField(max_length=255)
-    image=models.ImageField(blank=True,upload_to='images/')
     status=models.CharField(max_length=10, choices=STATUS)
     slug = models.SlugField(null=False, unique=True)
     create_at=models.DateTimeField(auto_now_add=True)
@@ -32,8 +31,8 @@ class Category(models.Model):
     def get_absolute_url(self):
         return reverse('category_detail', kwargs={'slug': self.slug})
 
-    def __str__(self):                           # __str__ method elaborated later in
-        full_path = [self.title]                  # post.  use __unicode__ in place of
+    def __str__(self):                          
+        full_path = [self.title]                
         return ' / '.join(full_path[::-1])
 
 
@@ -48,8 +47,8 @@ class Product(models.Model):
         ('Size', 'Size'),
         ('Color', 'Color'),
         ('Size-Color', 'Size-Color'),
-
     )
+
     category = models.ForeignKey(Category, on_delete=models.CASCADE) #many to one relation with Category
     title = models.CharField(max_length=150)
     keywords = models.CharField(max_length=255)
@@ -57,7 +56,6 @@ class Product(models.Model):
     image=models.ImageField(upload_to='images/',null=False)
     price = models.DecimalField(max_digits=12, decimal_places=2,default=0)
     amount=models.IntegerField(default=0)
-    minamount=models.IntegerField(default=3)
     variant=models.CharField(max_length=10,choices=VARIANTS, default='None')
     detail=RichTextUploadingField()
     slug = models.SlugField(null=False, unique=True)
@@ -79,14 +77,14 @@ class Product(models.Model):
         return reverse('category_detail', kwargs={'slug': self.slug})
 
     def avaregereview(self):
-        reviews = Comment.objects.filter(product=self, status='True').aggregate(avarage=Avg('rate'))
+        reviews = Comment.objects.filter(product=self).aggregate(avarage=Avg('rate'))
         avg=0
         if reviews["avarage"] is not None:
             avg=float(reviews["avarage"])
         return avg
 
     def countreview(self):
-        reviews = Comment.objects.filter(product=self, status='True').aggregate(count=Count('id'))
+        reviews = Comment.objects.filter(product=self).aggregate(count=Count('id'))
         cnt=0
         if reviews["count"] is not None:
             cnt = int(reviews["count"])

@@ -9,7 +9,7 @@ from django.shortcuts import render
 from django.utils import translation
 
 from home.models import FAQ
-from order.models import Order, OrderProduct
+from order.models import Order, OrderProduct, ShopCart
 from product.models import Category, Comment
 from user.forms import SignUpForm, UserUpdateForm, ProfileUpdateForm
 from user.models import UserProfile
@@ -18,8 +18,8 @@ from user.models import UserProfile
 def index(request):
     category = Category.objects.all()
     current_user = request.user  # Access User Session information
-    print(f"Current User: {current_user.id}")
     profile = UserProfile.objects.get(user_id=current_user.id)
+
     context = {'category': category,
                'profile':profile}
     return render(request,'user_profile.html',context)
@@ -34,7 +34,15 @@ def login_form(request):
             current_user =request.user
             userprofile=UserProfile.objects.get(user_id=current_user.id)
             request.session['userimage'] = userprofile.image.url
-
+            cart = request.session.get('cart', {})
+            if cart: 
+                for id, item in cart.items():
+                    data = ShopCart()  # model ile bağlantı kur
+                    data.user_id = current_user.id 
+                    data.product_id = id
+                    data.quantity = item['quantity']
+                    data.variant_id =None
+                    data.save() 
             # Redirect to a success page.
             return HttpResponseRedirect('/')
         else:
@@ -66,8 +74,10 @@ def signup_form(request):
             data=UserProfile()
             data.user_id=current_user.id
             data.image="images/users/user.png"
+            request.session['userimage'] = data.image.url
             data.save()
             messages.success(request, 'Your account has been created!')
+           
             return HttpResponseRedirect('/')
         else:
             messages.warning(request,form.errors)
@@ -75,8 +85,8 @@ def signup_form(request):
 
 
     form = SignUpForm()
-    #category = Category.objects.all()
-    context = {#'category': category,
+    category = Category.objects.all()
+    context = {'category': category,
                'form': form,
                }
     return render(request, 'signup_form.html', context)
@@ -135,12 +145,12 @@ def user_orders(request):
 
 @login_required(login_url='/login') # Check login
 def user_orderdetail(request,id):
-    #category = Category.objects.all()
+    category = Category.objects.all()
     current_user = request.user
     order = Order.objects.get(user_id=current_user.id, id=id)
     orderitems = OrderProduct.objects.filter(order_id=id)
     context = {
-        #'category': category,
+        'category': category,
         'order': order,
         'orderitems': orderitems,
     }

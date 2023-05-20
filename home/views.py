@@ -18,12 +18,9 @@ from home.forms import SearchForm
 from home.models import Setting, ContactForm, ContactMessage, FAQ
 from mysite import settings
 from product.models import Category, Product, Images, Comment, Variants
-from user.models import UserProfile
 
 
 def index(request):
-    if not request.session.has_key('currency'):
-        request.session['currency'] = settings.DEFAULT_CURRENCY
 
     setting = Setting.objects.get(pk=1)
     products_latest = Product.objects.all().order_by('-id')[:4]  # last 4 products
@@ -38,6 +35,7 @@ def index(request):
              'products_picked': products_picked,
              'category':category
              }
+    
     return render(request,'index.html',context)
 
 def aboutus(request):
@@ -90,28 +88,12 @@ def search(request):
 
     return HttpResponseRedirect('/')
 
-def search_auto(request):
-    if request.is_ajax():
-        q = request.GET.get('term', '')
-        products = Product.objects.filter(title__icontains=q)
-
-        results = []
-        for rs in products:
-            product_json = {}
-            product_json = rs.title +" > " + rs.category.title
-            results.append(product_json)
-        data = json.dumps(results)
-    else:
-        data = 'fail'
-    mimetype = 'application/json'
-    return HttpResponse(data, mimetype)
-
 def product_detail(request,id,slug):
     query = request.GET.get('q')
     category = Category.objects.all()
     product = Product.objects.get(pk=id)
     images = Images.objects.filter(product_id=id)
-    comments = Comment.objects.filter(product_id=id,status='True')
+    comments = Comment.objects.filter(product_id=id)
     context = {'product': product,'category': category,
                'images': images, 'comments': comments,
                }
