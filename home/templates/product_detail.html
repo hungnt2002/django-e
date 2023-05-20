@@ -108,10 +108,10 @@
                                     <input type="hidden" name="variantid" id="variantid" value="{{ variant.id }}">
                                     <div id="SelectedProduct">
                                         <p><strong>Availability:</strong> {% if variant.quantity > 0  %} In Stock {% else %} Out of Stock {% endif %}</p>
-                                        <p><strong>Selected :</strong> Size : {{ variant.size }}  Color : {{ variant.color }} </p>
+                                        <p><strong>Selected :</strong> Size : {{ variant.size }} </p>
                                         <h3 class="product-price">${{ variant.price}}</h3>
                                         <div class="qty-input">
-                                            <span class="text-uppercase">QTY: </span>
+                                            <span class="text-uppercase">Quantity: </span>
                                             <input class="input" name="quantity" type="number" value="1" min="1" max="{{ variant.quantity }}">
                                             <button type="submit" {% if variant.quantity < 1  %} disabled {% endif %} class="primary-btn add-to-cart">
                                                 <i class="fa fa-shopping-cart"></i> Add to Cart

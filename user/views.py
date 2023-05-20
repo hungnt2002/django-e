@@ -37,7 +37,7 @@ def login_form(request):
             cart = request.session.get('cart', {})
             if cart: 
                 for id, item in cart.items():
-                    data = ShopCart()  # model ile bağlantı kur
+                    data = ShopCart() 
                     data.user_id = current_user.id 
                     data.product_id = id
                     data.quantity = item['quantity']

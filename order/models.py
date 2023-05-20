@@ -10,7 +10,7 @@ from product.models import Product, Variants
 class ShopCart(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
-    variant = models.ForeignKey(Variants, on_delete=models.SET_NULL,blank=True, null=True) # relation with varinat
+    variant = models.ForeignKey(Variants, on_delete=models.SET_NULL,blank=True, null=True)
     quantity = models.IntegerField()
 
     def __str__(self):

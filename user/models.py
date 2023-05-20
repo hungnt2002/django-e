@@ -12,7 +12,6 @@ class UserProfile(models.Model):
     country = models.CharField(blank=True, max_length=50)
     image = models.ImageField(blank=True, upload_to='images/users/')
 
-
     def __str__(self):
         return self.user.username
 

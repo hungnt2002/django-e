@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
+import json
 
 # Create your views here.
 from django.utils.crypto import get_random_string
@@ -14,12 +15,18 @@ from user.models import UserProfile
 def index(request):
     return HttpResponse("Order Page")
 
-# @login_required(login_url='/login') # Check login
 def addtoshopcart(request,id):
     url = request.META.get('HTTP_REFERER')  # get last url
     current_user = request.user  # Access User Session information
     product= Product.objects.get(pk=id)
-
+    variant = Variants.objects.filter(product_id = id).values('title', 'product', 'size', 'quantity')
+    productSession = {
+        'title': product.title,
+        'image': str(product.image),
+        'amount': product.amount,
+        'variant' :  list(variant)
+    }
+    variantid = None
     if(not request.user.is_authenticated):
         cart = request.session.get('cart', {})  # Lấy giỏ hàng từ session
         if id in cart:
@@ -28,7 +35,8 @@ def addtoshopcart(request,id):
             cart[id] = {
                 'quantity': 1,
                 'title': product.title,
-                'price': float(product.price)
+                'price': float(product.price),
+                'product' : productSession
             }  # Thêm sản phẩm mới vào giỏ hàng
         request.session['cart'] = cart  # Lưu giỏ hàng vào session
         return HttpResponseRedirect(url)
@@ -61,7 +69,8 @@ def addtoshopcart(request,id):
                 data = ShopCart()
                 data.user_id = current_user.id
                 data.product_id =id
-                # data.variant_id = variantid
+                if variantid:
+                    data.variant_id = variantid
                 data.quantity = form.cleaned_data['quantity']
                 data.save()
         messages.success(request, "Product added to Shopcart ")
@@ -78,7 +87,7 @@ def addtoshopcart(request,id):
             data.user_id = current_user.id
             data.product_id = id
             data.quantity = 1
-            data.variant_id =None
+            data.variant_id = None
             data.save()  #
         messages.success(request, "Product added to Shopcart")
         return HttpResponseRedirect(url)
@@ -92,6 +101,7 @@ def shopcart(request):
         for id, item in cart.items():
             total += item['price'] * item['quantity']
         shopcart = cart.items()
+        
     else:
         current_user = request.user  # Access User Session information
         shopcart = ShopCart.objects.filter(user_id=current_user.id)

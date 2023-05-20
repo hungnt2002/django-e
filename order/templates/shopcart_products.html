@@ -46,15 +46,11 @@
                             {% for rs in shopcart %}
                                 <tr>
                                     <td class="thumb">
-                                        {% if rs.variant.image_id  > 0 %}
-                                            <img src="{{rs.variant.image }}" alt="">
-                                        {% else %}
-                                            <img src="{{rs.product.image.url}}" alt="">
-                                        {% endif %}
+                                        <img src="{{rs.product.image.url}}" alt="">
 
                                     </td>
                                     <td class="details">
-                                        <a href="/product/{{ rs.product.id }}/{{ rs.product.slug }}">{{rs.product}} {{ rs.variant.size }} {{ rs.variant.color }}</a>  </td>
+                                        <a href="/product/{{ rs.product.id }}/{{ rs.product.slug }}">{{rs.product}} {{ rs.variant.size }}</a>  </td>
                                     <td class="price text-center"><strong>
                                         {% if rs.product.variant == 'None' %}
                                             {{ rs.product.price }} USD
@@ -98,7 +94,6 @@
                             <a href="{% url 'orderproduct' %}" class="primary-btn">Place Order</a>
                         </div>
                     </div>
-
                 </div>
 
 
