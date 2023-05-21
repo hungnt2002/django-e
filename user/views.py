@@ -6,9 +6,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
 # Create your views here.
-from django.utils import translation
-
-from home.models import FAQ
 from order.models import Order, OrderProduct, ShopCart
 from product.models import Category, Comment
 from user.forms import SignUpForm, UserUpdateForm, ProfileUpdateForm

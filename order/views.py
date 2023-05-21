@@ -15,14 +15,15 @@ def index(request):
     return HttpResponse("Order Page")
 
 def addtoshopcart(request,id):
-    url = request.META.get('HTTP_REFERER')  # get last url
-    current_user = request.user  # Access User Session information
+    url = request.META.get('HTTP_REFERER')
+    current_user = request.user 
     product= Product.objects.get(pk=id)
     id = str(id)
 
     variantid = None
     if(not request.user.is_authenticated):
         cart = request.session.get('cart', {})  # Lấy giỏ hàng từ session
+        
 
         if id in cart:
             cart[id]['quantity'] = cart[id]['quantity'] + 1  # Tăng số lượng nếu sản phẩm đã tồn tại trong giỏ hàng
@@ -39,20 +40,20 @@ def addtoshopcart(request,id):
         return HttpResponseRedirect(url)
     else:
         if product.variant != 'None':
-            variantid = request.POST.get('variantid') 
-            checkinvariant = ShopCart.objects.filter(variant_id=variantid, user_id=current_user.id)  
+            variantid = request.POST.get('variantid')  # from variant add to cart
+            checkinvariant = ShopCart.objects.filter(variant_id=variantid, user_id=current_user.id)  # Check product in shopcart
             if checkinvariant:
                 control = 1 # sản phẩm trong giỏ hàng
             else:
                 control = 0 # Sản phẩm không trong giỏ hàng
         else:
-            checkinproduct = ShopCart.objects.filter(product_id=id, user_id=current_user.id) 
+            checkinproduct = ShopCart.objects.filter(product_id=id, user_id=current_user.id) # Check product in shopcart
             if checkinproduct:
                 control = 1 # sản phẩm trong giỏ hàng
             else:
                 control = 0 # Sản phẩm không trong giỏ hàng
 
-        if request.method == 'POST':
+        if request.method == 'POST':  # if there is a post
             form = ShopCartForm(request.POST)
             if form.is_valid():
                 if control==1: # Cập nhật giỏ hàng

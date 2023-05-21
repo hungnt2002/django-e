@@ -92,7 +92,11 @@
                             <div class="header-btns-icon">
                                 <i class="fa fa-shopping-cart"></i>
                                 {% load myapptags %}
-                                {% shopcartcount user.id as count %}
+                                {% if request.user.is_authenticated %}
+                                    {% shopcartcount user.id as count %}
+                                {% else %}
+                                    {% shopcartcountSession request as count %}
+                                {% endif %}
 
                                 <span class="qty">{{ count }}</span>
                             </div>
