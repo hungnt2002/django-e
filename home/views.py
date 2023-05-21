@@ -71,10 +71,10 @@ def category_products(request,id,slug):
     return render(request,'category_products.html',context)
 
 def search(request):
-    if request.method == 'POST': # check post
+    if request.method == 'POST':
         form = SearchForm(request.POST)
         if form.is_valid():
-            query = form.cleaned_data['query'] # get form input data
+            query = form.cleaned_data['query'] 
             catid = form.cleaned_data['catid']
             if catid==0:
                 products=Product.objects.filter(title__icontains=query)  #SELECT * FROM product WHERE title LIKE '%query%'

@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
-import json
 
 # Create your views here.
 from django.utils.crypto import get_random_string
@@ -19,78 +18,76 @@ def addtoshopcart(request,id):
     url = request.META.get('HTTP_REFERER')  # get last url
     current_user = request.user  # Access User Session information
     product= Product.objects.get(pk=id)
-    variant = Variants.objects.filter(product_id = id).values('title', 'product', 'size', 'quantity')
-    productSession = {
-        'title': product.title,
-        'image': str(product.image),
-        'amount': product.amount,
-        'variant' :  list(variant)
-    }
+    id = str(id)
+
     variantid = None
     if(not request.user.is_authenticated):
         cart = request.session.get('cart', {})  # Lấy giỏ hàng từ session
+
         if id in cart:
-            cart[id]['quantity'] += 1  # Tăng số lượng nếu sản phẩm đã tồn tại trong giỏ hàng
+            cart[id]['quantity'] = cart[id]['quantity'] + 1  # Tăng số lượng nếu sản phẩm đã tồn tại trong giỏ hàng
         else:
             cart[id] = {
                 'quantity': 1,
-                'title': product.title,
+                'nameProduct': product.title,
                 'price': float(product.price),
-                'product' : productSession
+                'image': product.image.url,
+                'slug': product.slug,
+                'variant' : product.variant
             }  # Thêm sản phẩm mới vào giỏ hàng
         request.session['cart'] = cart  # Lưu giỏ hàng vào session
         return HttpResponseRedirect(url)
-    
-    if product.variant != 'None':
-        variantid = request.POST.get('variantid')  # from variant add to cart
-        checkinvariant = ShopCart.objects.filter(variant_id=variantid, user_id=current_user.id)  # Check product in shopcart
-        if checkinvariant:
-            control = 1 # The product is in the cart
-        else:
-            control = 0 # The product is not in the cart"""
     else:
-        checkinproduct = ShopCart.objects.filter(product_id=id, user_id=current_user.id) # Check product in shopcart
-        if checkinproduct:
-            control = 1 # The product is in the cart
+        if product.variant != 'None':
+            variantid = request.POST.get('variantid') 
+            checkinvariant = ShopCart.objects.filter(variant_id=variantid, user_id=current_user.id)  
+            if checkinvariant:
+                control = 1 # sản phẩm trong giỏ hàng
+            else:
+                control = 0 # Sản phẩm không trong giỏ hàng
         else:
-            control = 0 # The product is not in the cart"""
+            checkinproduct = ShopCart.objects.filter(product_id=id, user_id=current_user.id) 
+            if checkinproduct:
+                control = 1 # sản phẩm trong giỏ hàng
+            else:
+                control = 0 # Sản phẩm không trong giỏ hàng
 
-    if request.method == 'POST':  # if there is a post
-        form = ShopCartForm(request.POST)
-        if form.is_valid():
-            if control==1: # Update  shopcart
-                if product.variant == 'None':
-                    data = ShopCart.objects.get(product_id=id, user_id=current_user.id)
-                else:
-                    data = ShopCart.objects.get(product_id=id, variant_id=variantid, user_id=current_user.id)
-                data.quantity += form.cleaned_data['quantity']
-                data.save()  # save data
-            else : # Inser to Shopcart
-                data = ShopCart()
+        if request.method == 'POST':
+            form = ShopCartForm(request.POST)
+            if form.is_valid():
+                if control==1: # Cập nhật giỏ hàng
+                    if product.variant == 'None':
+                        data = ShopCart.objects.get(product_id=id, user_id=current_user.id)
+                    else:
+                        data = ShopCart.objects.get(product_id=id, variant_id=variantid, user_id=current_user.id)
+                    data.quantity += form.cleaned_data['quantity']
+                    data.save() 
+                else : # Thêm vào giỏ hàng
+                    data = ShopCart()
+                    data.user_id = current_user.id
+                    data.product_id =id
+                    if variantid:
+                        data.variant_id = variantid
+                    data.quantity = form.cleaned_data['quantity']
+                    data.save()
+            messages.success(request, "Product added to Shopcart ")
+            return HttpResponseRedirect(url)
+
+        else: 
+            if control == 1:  
+                print(current_user.id)
+                data = ShopCart.objects.get(product_id=id, user_id=current_user.id)
+                data.quantity += 1
+                data.save()  #
+            else:  
+                data = ShopCart()  
                 data.user_id = current_user.id
-                data.product_id =id
-                if variantid:
-                    data.variant_id = variantid
-                data.quantity = form.cleaned_data['quantity']
-                data.save()
-        messages.success(request, "Product added to Shopcart ")
-        return HttpResponseRedirect(url)
-
-    else: # if there is no post
-        if control == 1:  # Update  shopcart
-            print(current_user.id)
-            data = ShopCart.objects.get(product_id=id, user_id=current_user.id)
-            data.quantity += 1
-            data.save()  #
-        else:  #  Inser to Shopcart
-            data = ShopCart()  # model ile bağlantı kur
-            data.user_id = current_user.id
-            data.product_id = id
-            data.quantity = 1
-            data.variant_id = None
-            data.save()  #
-        messages.success(request, "Product added to Shopcart")
-        return HttpResponseRedirect(url)
+                data.product_id = id
+                data.quantity = 1
+                data.variant_id = None
+                data.save()  #
+            messages.success(request, "Product added to Shopcart")
+            return HttpResponseRedirect(url)
 
 def shopcart(request):
     if not request.user.is_authenticated:
@@ -100,26 +97,34 @@ def shopcart(request):
         # Tính tổng giá tiền của giỏ hàng
         for id, item in cart.items():
             total += item['price'] * item['quantity']
-        shopcart = cart.items()
+            item['unitTotal'] = item['price'] * item['quantity']
+        category = Category.objects.all()
+
+        context={
+                'category':category,
+                'total': total,
+                'cart': cart
+                }
+        return render(request,'shopcart_products.html',context)
         
     else:
-        current_user = request.user  # Access User Session information
+        current_user = request.user 
         shopcart = ShopCart.objects.filter(user_id=current_user.id)
         total=0
         for rs in shopcart:
             total += rs.product.price * rs.quantity
 
-    category = Category.objects.all()
+        category = Category.objects.all()
 
-    context={'shopcart': shopcart,
-             'category':category,
-             'total': total,
-             }
-    return render(request,'shopcart_products.html',context)
+        context={'shopcart': shopcart,
+                'category':category,
+                'total': total
+                }
+        return render(request,'shopcart_products.html',context)
 
 def deletefromcart(request,id):
     cart = request.session.get('cart', {})  # Lấy giỏ hàng từ session
-
+    id = str(id)
     if id in cart:
         del cart[id]  # Xóa sản phẩm khỏi giỏ hàng
 
@@ -133,7 +138,7 @@ def deletefromcart(request,id):
 
 
 
-@login_required(login_url='/login') # Check login
+@login_required(login_url='/login')
 def orderproduct(request):
     category = Category.objects.all()
     current_user = request.user
@@ -145,19 +150,17 @@ def orderproduct(request):
         else:
             total += rs.variant.price * rs.quantity
 
-    if request.method == 'POST':  # if there is a post
+    if request.method == 'POST': 
         form = OrderForm(request.POST)
-        #return HttpResponse(request.POST.items())
         if form.is_valid():
             data = Order()
-            data.first_name = form.cleaned_data['first_name'] #get product quantity from form
+            data.first_name = form.cleaned_data['first_name']
             data.last_name = form.cleaned_data['last_name']
             data.address = form.cleaned_data['address']
             data.city = form.cleaned_data['city']
             data.phone = form.cleaned_data['phone']
             data.user_id = current_user.id
             data.total = total
-            data.ip = request.META.get('REMOTE_ADDR')
             ordercode= get_random_string(5).upper()
             data.code =  ordercode
             data.save() #
@@ -165,7 +168,7 @@ def orderproduct(request):
 
             for rs in shopcart:
                 detail = OrderProduct()
-                detail.order_id     = data.id # Order Id
+                detail.order_id     = data.id
                 detail.product_id   = rs.product_id
                 detail.user_id      = current_user.id
                 detail.quantity     = rs.quantity
@@ -176,7 +179,7 @@ def orderproduct(request):
                 detail.variant_id   = rs.variant_id
                 detail.amount        = rs.amount
                 detail.save()
-                # ***Reduce quantity of sold product from Amount of Product
+                
                 if  rs.product.variant=='None':
                     product = Product.objects.get(id=rs.product_id)
                     product.amount -= rs.quantity
@@ -185,9 +188,9 @@ def orderproduct(request):
                     variant = Variants.objects.get(id=rs.product_id)
                     variant.quantity -= rs.quantity
                     variant.save()
-                #************ <> *****************
+            
 
-            ShopCart.objects.filter(user_id=current_user.id).delete() # Clear & Delete shopcart
+            ShopCart.objects.filter(user_id=current_user.id).delete()
             request.session['cart_items']=0
             messages.success(request, "Your Order has been completed. Thank you ")
             return render(request, 'Order_Completed.html',{'ordercode':ordercode,'category': category})

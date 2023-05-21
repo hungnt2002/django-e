@@ -87,6 +87,7 @@ class Product(models.Model):
         if reviews["count"] is not None:
             cnt = int(reviews["count"])
         return cnt
+    
 
 
 class Images(models.Model):

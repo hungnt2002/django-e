@@ -66,8 +66,8 @@
                     <li class="header-account dropdown default-dropdown">
                         {% if user.id is not None %}
                             <div class="dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="true">
-                                <div class="header-btns-icon">
-                                    <img src="{{ request.session.userimage }}" style="height: 40px; border-radius: 30%">
+                                <div class="header-btns-icon" style="width: 45px; height: 45px; border-radius: 50%;">
+                                    <img src="{{ request.session.userimage }}" style="object-fit: cover; width: 100%; height: 100%; border-radius: 50%">
                                 </div>
                                 <strong class="text-uppercase">{{ user.first_name }} {{ user.last_name }} <i class="fa fa-caret-down"></i></strong>
                             </div>

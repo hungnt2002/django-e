@@ -42,34 +42,61 @@
                             </tr>
                             </thead>
                             <tbody>
+                            {% if user.is_authenticated %}
+                                {% for rs in shopcart %}
+                                    <tr>
+                                        <td class="thumb">
+                                            <img src="{{rs.product.image.url}}" alt="">
 
-                            {% for rs in shopcart %}
-                                <tr>
-                                    <td class="thumb">
-                                        <img src="{{rs.product.image.url}}" alt="">
+                                        </td>
+                                        <td class="details">
+                                            <a href="/product/{{ rs.product.id }}/{{ rs.product.slug }}">{{rs.product}} {{ rs.variant.size }}</a>  </td>
+                                        <td class="price text-center"><strong>
+                                            {% if not variant %}
+                                                {{ rs.product.price }} USD
+                                            {% else %}
+                                                {{ rs.variant.price }} USD
+                                            {% endif %}
+                                        </strong></td>
+                                        <td class="qty text-center"><strong>{{rs.quantity}}</strong></td>
+                                        <td class="total text-center"><strong class="primary-color">$
+                                            {% if rs.product.variant == 'None' %}
+                                                {{ rs.amount }} USD
+                                            {% else %}
+                                                {{ rs.varamount}} USD
+                                            {% endif %}
+                                        </strong></td>
+                                        <td class="text-right"><a href="/order/deletefromcart/{{ rs.id }}" onclick="return confirm('Delete ! Are you sure?')" class="main-btn icon-btn"><i class="fa fa-close"></i></a></td>
+                                    </tr>
 
-                                    </td>
-                                    <td class="details">
-                                        <a href="/product/{{ rs.product.id }}/{{ rs.product.slug }}">{{rs.product}} {{ rs.variant.size }}</a>  </td>
-                                    <td class="price text-center"><strong>
-                                        {% if rs.product.variant == 'None' %}
-                                            {{ rs.product.price }} USD
-                                        {% else %}
-                                            {{ rs.variant.price }} USD
-                                        {% endif %}
-                                    </strong></td>
-                                    <td class="qty text-center"><strong>{{rs.quantity}}</strong></td>
-                                    <td class="total text-center"><strong class="primary-color">$
-                                        {% if rs.product.variant == 'None' %}
-                                            {{ rs.amount }} USD
-                                        {% else %}
-                                            {{ rs.varamount}} USD
-                                        {% endif %}
-                                    </strong></td>
-                                    <td class="text-right"><a href="/order/deletefromcart/{{ rs.id }}" onclick="return confirm('Delete ! Are you sure?')" class="main-btn icon-btn"><i class="fa fa-close"></i></a></td>
-                                </tr>
-
-                            {% endfor %}
+                                {% endfor %}
+                            {% else %}
+                                {% for id, rs in cart.items %}
+                                    <tr>
+                                        <td class="thumb">
+                                            <img src="{{rs.image}}" alt="">
+                                        </td>
+                                        <td class="details">
+                                            <a href="/product/{{ id }}/{{ rs.slug }}">{{rs.nameProduct}} {{ rs.variant.size }}</a>  </td>
+                                        <td class="price text-center"><strong>
+                                            {% if not variant %}
+                                                {{ rs.price }} USD
+                                            {% else %}
+                                                {{ rs.variant.price }} USD
+                                            {% endif %}
+                                        </strong></td>
+                                        <td class="qty text-center"><strong>{{rs.quantity}}</strong></td>
+                                        <td class="total text-center"><strong class="primary-color">$
+                                            {% if not variant %}
+                                                {{ rs.unitTotal }} USD
+                                            {% else %}
+                                                {{ rs.varamount}} USD
+                                            {% endif %}
+                                        </strong></td>
+                                        <td class="text-right"><a href="/order/deletefromcart/{{ id }}" onclick="return confirm('Delete ! Are you sure?')" class="main-btn icon-btn"><i class="fa fa-close"></i></a></td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
 
                             </tbody>
                             <tfoot>

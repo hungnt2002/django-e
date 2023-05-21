@@ -14,10 +14,10 @@ from product.models import Category, Comment
 from user.forms import SignUpForm, UserUpdateForm, ProfileUpdateForm
 from user.models import UserProfile
 
-@login_required(login_url='/login') # Check login
+@login_required(login_url='/login')
 def index(request):
     category = Category.objects.all()
-    current_user = request.user  # Access User Session information
+    current_user = request.user 
     profile = UserProfile.objects.get(user_id=current_user.id)
 
     context = {'category': category,
@@ -94,20 +94,23 @@ def signup_form(request):
 
 
 
-@login_required(login_url='/login') # Check login
+@login_required(login_url='/login') 
 def user_update(request):
     if request.method == 'POST':
-        user_form = UserUpdateForm(request.POST, instance=request.user) # request.user is user  data
+        user_form = UserUpdateForm(request.POST, instance=request.user)
         profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.userprofile)
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
+            current_user = request.user
+            userprofile=UserProfile.objects.get(user_id=current_user.id)
+            request.session['userimage'] = userprofile.image.url
             messages.success(request, 'Your account has been updated!')
             return HttpResponseRedirect('/user')
     else:
         category = Category.objects.all()
         user_form = UserUpdateForm(instance=request.user)
-        profile_form = ProfileUpdateForm(instance=request.user.userprofile) #"userprofile" model -> OneToOneField relatinon with user
+        profile_form = ProfileUpdateForm(instance=request.user.userprofile) 
         context = {
             'category': category,
             'user_form': user_form,
@@ -115,13 +118,13 @@ def user_update(request):
         }
         return render(request, 'user_update.html', context)
 
-@login_required(login_url='/login') # Check login
+@login_required(login_url='/login') 
 def user_password(request):
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
             user = form.save()
-            update_session_auth_hash(request, user)  # Important!
+            update_session_auth_hash(request, user) 
             messages.success(request, 'Your password was successfully updated!')
             return HttpResponseRedirect('/user')
         else:
@@ -133,7 +136,7 @@ def user_password(request):
         return render(request, 'user_password.html', {'form': form,#'category': category
                        })
 
-@login_required(login_url='/login') # Check login
+@login_required(login_url='/login')
 def user_orders(request):
     #category = Category.objects.all()
     current_user = request.user
@@ -143,7 +146,7 @@ def user_orders(request):
                }
     return render(request, 'user_orders.html', context)
 
-@login_required(login_url='/login') # Check login
+@login_required(login_url='/login') 
 def user_orderdetail(request,id):
     category = Category.objects.all()
     current_user = request.user
@@ -156,7 +159,7 @@ def user_orderdetail(request,id):
     }
     return render(request, 'user_order_detail.html', context)
 
-@login_required(login_url='/login') # Check login
+@login_required(login_url='/login') 
 def user_order_product(request):
     #category = Category.objects.all()
     current_user = request.user
@@ -166,7 +169,7 @@ def user_order_product(request):
                }
     return render(request, 'user_order_products.html', context)
 
-@login_required(login_url='/login') # Check login
+@login_required(login_url='/login') 
 def user_order_product_detail(request,id,oid):
     #category = Category.objects.all()
     current_user = request.user
@@ -190,7 +193,7 @@ def user_comments(request):
     }
     return render(request, 'user_comments.html', context)
 
-@login_required(login_url='/login') # Check login
+@login_required(login_url='/login') 
 def user_deletecomment(request,id):
     current_user = request.user
     Comment.objects.filter(id=id, user_id=current_user.id).delete()
