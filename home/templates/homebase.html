@@ -43,15 +43,40 @@
     <!-- jQuery UI !-->
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css"></script>
-    <link href="toastr.css" rel="stylesheet"/>
-    <script src="toastr.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"> </script>
+
     {% block head %}
 
 
     {% endblock %}
 </head>
-<body>
+{% if messages %}
+    {% for message in messages %}
+      {% if message.tags == 'success' %}
+        <body onload="showToastIfMessageSuccess('{{message}}')">
+      {% elif message.tags == 'warning' %}
+        <body onload="showToastIfMessageWarning('{{message}}')">
+      {% endif %}
+    {% endfor %}
+      <script>
+          function showToastIfMessageSuccess(message) {
+            if (message) {
+              toastr.success(message, 'Notification');
+            }
+            console.log(message)
+          }
+  
+          function showToastIfMessageWarning(message) {
+            if (message) {
+              toastr.warning(message, 'Notification');
+            }
+            console.log(message)
+          }
+      </script>
+{% else %}
+    <body>
+{% endif %}
 {% include 'header.html' %}
 {% block sidebar %} {% endblock %}
 {% block slider %} {% endblock %}
@@ -59,6 +84,9 @@
 {% include 'footer.html' %}
 
 {% block foot %} {% endblock %}
+
+
+<script src="{% static '' %}js/toastr-custom.js"> </script>
 
 </body>
 </html>

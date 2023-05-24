@@ -8,16 +8,16 @@ from django.shortcuts import render
 # Create your views here.
 
 from home.forms import SearchForm
-from home.models import Setting, ContactForm, ContactMessage, FAQ
+from home.models import Setting, ContactForm, ContactMessage
 from product.models import Category, Product, Images, Comment, Variants
 
 
 def index(request):
 
     setting = Setting.objects.get(pk=1)
-    products_latest = Product.objects.all().order_by('-id')[:4]  # last 4 products
-    products_slider = Product.objects.all().order_by('id')[:4]  #first 4 products
-    products_picked = Product.objects.all().order_by('?')[:4]   #Random selected 4 products
+    products_latest = Product.objects.all().order_by('-id')[:4]  
+    products_slider = Product.objects.all().order_by('id')[:4] 
+    products_picked = Product.objects.all().order_by('?')[:4]  
     category = Category.objects.all()
     page="home"
     context={'setting':setting,
@@ -36,16 +36,16 @@ def aboutus(request):
     return render(request, 'about.html', context)
 
 def contactus(request):
-    if request.method == 'POST': # check post
+    if request.method == 'POST':
         form = ContactForm(request.POST)
         if form.is_valid():
-            data = ContactMessage() #create relation with model
-            data.name = form.cleaned_data['name'] # get form input data
+            data = ContactMessage() 
+            data.name = form.cleaned_data['name'] 
             data.email = form.cleaned_data['email']
             data.subject = form.cleaned_data['subject']
             data.message = form.cleaned_data['message']
             data.ip = request.META.get('REMOTE_ADDR')
-            data.save()  #save data to table
+            data.save()  
             messages.success(request,"Your message has ben sent. Thank you for your message.")
             return HttpResponseRedirect('/contact')
 
@@ -88,10 +88,10 @@ def product_detail(request,id,slug):
     context = {'product': product,'category': category,
                'images': images, 'comments': comments,
                }
-    if product.variant !="None": # Product have variants
-        if request.method == 'POST': #if we select color
+    if product.variant !="None": 
+        if request.method == 'POST': 
             variant_id = request.POST.get('variantid')
-            variant = Variants.objects.get(id=variant_id) #selected product by click color radio
+            variant = Variants.objects.get(id=variant_id) 
             sizes = Variants.objects.raw('SELECT * FROM  product_variants  WHERE product_id=%s GROUP BY size_id',[id])
         else:
             variants = Variants.objects.filter(product_id=id)
@@ -101,12 +101,3 @@ def product_detail(request,id,slug):
                         'variant': variant
                         })
     return render(request,'product_detail.html',context)
-
-
-def faq(request):
-    faq = FAQ.objects.filter(status="True").order_by("ordernumber")
-
-    context = {
-        'faq': faq,
-    }
-    return render(request, 'faq.html', context)

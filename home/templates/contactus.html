@@ -32,15 +32,6 @@
 
                         <div class="section-title">
                             <h3 class="title">Contact Form</h3>
-
-                            {% if messages %}
-                                {% for message in messages %}
-                                    <div class="alert alert-{{message.tags}}" role="alert">
-                                        {{ message }}
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-
                         </div>
                         <form id="checkout-form" class="clearfix" method="post">
                             {% csrf_token %}

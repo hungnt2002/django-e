@@ -28,9 +28,9 @@ class UserUpdateForm(UserChangeForm):
         }
 
 CITY = [
-    ('Istanbul', 'Istanbul'),
-    ('Ankara', 'Ankara'),
-    ('Izmir', 'Izmir'),
+    ('Thành phố Hồ Chí Minh', 'Thành phố Hồ Chí Minh'),
+    ('Hà Nội', 'Hà Nội'),
+    ('Bình Dương', 'Bình Dương'),
 ]
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:

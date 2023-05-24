@@ -25,12 +25,6 @@ class Category(models.Model):
     def __str__(self):
         return self.title
 
-    class MPTTMeta:
-        order_insertion_by = ['title']
-
-    def get_absolute_url(self):
-        return reverse('category_detail', kwargs={'slug': self.slug})
-
     def __str__(self):                          
         full_path = [self.title]                
         return ' / '.join(full_path[::-1])
@@ -70,9 +64,6 @@ class Product(models.Model):
             return mark_safe('<img src="{}" height="50"/>'.format(self.image.url))
         else:
             return ""
-
-    def get_absolute_url(self):
-        return reverse('category_detail', kwargs={'slug': self.slug})
 
     def avaregereview(self):
         reviews = Comment.objects.filter(product=self).aggregate(avarage=Avg('rate'))

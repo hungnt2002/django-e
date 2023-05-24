@@ -61,12 +61,12 @@ def signup_form(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            form.save() #completed sign up
+            form.save() 
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=password)
             login(request, user)
-            # Create data in profile table for user
+ 
             current_user = request.user
             data=UserProfile()
             data.user_id=current_user.id
@@ -74,6 +74,16 @@ def signup_form(request):
             request.session['userimage'] = data.image.url
             data.save()
             messages.success(request, 'Your account has been created!')
+
+            cart = request.session.get('cart', {})
+            if cart: 
+                for id, item in cart.items():
+                    data = ShopCart() 
+                    data.user_id = current_user.id 
+                    data.product_id = id
+                    data.quantity = item['quantity']
+                    data.variant_id =None
+                    data.save() 
            
             return HttpResponseRedirect('/')
         else:

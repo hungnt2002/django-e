@@ -23,31 +23,63 @@ def addtoshopcart(request,id):
     variantid = None
     if(not request.user.is_authenticated):
         cart = request.session.get('cart', {})  # Lấy giỏ hàng từ session
+        control = 0
         
+        if cart:
+            checkinproduct = False
+            if id in cart:
+                checkinproduct = True
+                
+            if checkinproduct:
+                control = 1 # sản phẩm trong giỏ hàng
+            else:
+                control = 0 # Sản phẩm không trong giỏ hàng
+        
+        if request.method == 'POST':
 
-        if id in cart:
-            cart[id]['quantity'] = cart[id]['quantity'] + 1  # Tăng số lượng nếu sản phẩm đã tồn tại trong giỏ hàng
-        else:
-            cart[id] = {
+            if control==1: # Cập nhật giỏ hàng
+                cart[id]['quantity'] += int(request.POST.get('quantity'))
+            else : # Thêm vào giỏ hàng
+                cart[id] = {
+                    'quantity': 1,
+                    'nameProduct': product.title,
+                    'price': float(product.price),
+                    'image': product.image.url,
+                    'slug': product.slug,
+                }  # Thêm sản phẩm mới vào giỏ hàng
+            
+            request.session['cart'] = cart  # Lưu giỏ hàng vào session
+                    
+            messages.success(request, "Product added to Shopcart ")
+            return HttpResponseRedirect(url)
+
+        else: # method GET
+            if control == 1:  # Cập nhật giỏ hàng
+                print(request.GET.get('quantity'))
+                cart[id]['quantity'] += 1
+            else:  # Thêm vào giỏ hàng
+                cart[id] = {
                 'quantity': 1,
                 'nameProduct': product.title,
                 'price': float(product.price),
                 'image': product.image.url,
                 'slug': product.slug,
-                'variant' : product.variant
             }  # Thêm sản phẩm mới vào giỏ hàng
-        request.session['cart'] = cart  # Lưu giỏ hàng vào session
-        return HttpResponseRedirect(url)
-    else:
+            
+            request.session['cart'] = cart  # Lưu giỏ hàng vào session
+            messages.success(request, "Product added to Shopcart")
+            return HttpResponseRedirect(url)
+            
+    else: # Truờng hợp đăng nhập (Không dùng session)
         if product.variant != 'None':
-            variantid = request.POST.get('variantid')  # from variant add to cart
-            checkinvariant = ShopCart.objects.filter(variant_id=variantid, user_id=current_user.id)  # Check product in shopcart
+            variantid = request.POST.get('variantid') 
+            checkinvariant = ShopCart.objects.filter(variant_id=variantid, user_id=current_user.id)
             if checkinvariant:
                 control = 1 # sản phẩm trong giỏ hàng
             else:
                 control = 0 # Sản phẩm không trong giỏ hàng
         else:
-            checkinproduct = ShopCart.objects.filter(product_id=id, user_id=current_user.id) # Check product in shopcart
+            checkinproduct = ShopCart.objects.filter(product_id=id, user_id=current_user.id)
             if checkinproduct:
                 control = 1 # sản phẩm trong giỏ hàng
             else:

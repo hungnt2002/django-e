@@ -194,13 +194,6 @@
                                 </div>
                                 <div class="col-md-6">
                                     <h4 class="text-uppercase">Write Your Review</h4>
-                                    {% if messages %}
-                                        {% for message in messages %}
-                                            <div class="alert alert-{{message.tags}}" role="alert">
-                                                {{ message }}
-                                            </div>
-                                        {% endfor %}
-                                    {% endif %}
                                     <form class="review-form" action="/product/addcomment/{{ product.id }}" method="post">
                                         {% csrf_token %}
                                         <div class="form-group">

@@ -45,7 +45,7 @@ class Order(models.Model):
     last_name = models.CharField(max_length=10)
     phone = models.CharField(blank=True, max_length=20)
     address = models.CharField(blank=True, max_length=150)
-    city = models.CharField(blank=True, max_length=20)
+    city = models.CharField(blank=True, max_length=100)
     country = models.CharField(blank=True, max_length=20)
     total = models.FloatField()
     status=models.CharField(max_length=10,choices=STATUS,default='New')
