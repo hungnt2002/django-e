@@ -70,6 +70,7 @@ class Product(models.Model):
         avg=0
         if reviews["avarage"] is not None:
             avg=float(reviews["avarage"])
+            avg = round(avg, 1)
         return avg
 
     def countreview(self):
